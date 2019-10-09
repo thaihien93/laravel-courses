@@ -6,22 +6,31 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Carbon\Carbon;
 use App\Helpers\ResponseHelper;
+use App\Services\UserService;
 
-class ProvinceController extends Controller
+class UserController extends Controller
 {
+    private $userService;
+
+    public function __construct(UserService $userService)
+    {
+        $this->userService = $userService;
+    }
+
     /**
      * [GET] users/get
-     * @return \Illuminate\Http\JsonResponse
+     * @param Request $request
+     * @return mixed
      */
     public function get(Request $request)
     {
-        $users = User::all()->sortBy("id");
+        $users = $this->userService->search($request->all());
         if (!$users) {
             return response()->json(null, 404);
         }
 
         return ResponseHelper::success([
-            "users" => array_values($users->toArray())
+            "users" => array_values($users->get()->toArray())
         ]);
     }
 }
